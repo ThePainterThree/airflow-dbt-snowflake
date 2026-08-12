@@ -1,0 +1,14 @@
+my_dbt_project:
+  target: dev
+
+  outputs:
+    dev:
+      type: snowflake
+      account: NZDMHQD-PA12421
+      user: SNOWPATTI
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: DBT_ROLE
+      database: DBT_DB
+      warehouse: DBT_WH
+      schema: DBT_DEV
+      threads: 4

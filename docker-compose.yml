@@ -1,0 +1,33 @@
+x-airflow-common: &airflow-common
+  build: .
+  environment:
+    AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+    AIRFLOW__WEBSERVER__WORKERS: 1
+    SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD}
+
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./dbt_project:/opt/airflow/dbt_project
+    - airflow_home:/opt/airflow
+
+services:
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: bash
+    command: -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com"
+
+  airflow:
+    <<: *airflow-common
+    ports:
+      - "8080:8080"
+    command: webserver --workers 1 --worker-timeout 300
+
+  scheduler:
+    <<: *airflow-common
+    command: scheduler
+
+volumes:
+  airflow_home:
